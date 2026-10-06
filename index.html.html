@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover"/>
+<meta name="theme-color" content="#4f46e5"/>
+<title>合租生活管家</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  background:#e9ebf4;color:#1f2333;display:flex;justify-content:center;min-height:100vh;
+}
+.app{width:100%;max-width:480px;background:#f6f7fb;min-height:100vh;display:flex;flex-direction:column;
+  box-shadow:0 0 60px rgba(28,32,64,.12);position:relative}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:18px 18px 10px}
+.brand{font-size:17px;font-weight:700;letter-spacing:.3px}
+.brand-sub{font-size:11px;color:#9599ad;margin-top:3px}
+.avatar-me{width:34px;height:34px;border-radius:12px;background:linear-gradient(135deg,#5b5bf0,#a855f7);
+  color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600}
+.view{padding:4px 16px 100px;flex:1}
+.card{background:#fff;border-radius:18px;padding:16px;margin-bottom:12px;box-shadow:0 2px 14px rgba(28,32,64,.055)}
+.card-title{font-size:14px;font-weight:650;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.muted{font-size:11.5px;color:#9aa0b5;font-weight:400}
+.link{background:none;border:0;color:#4f46e5;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;padding:2px 4px}
+.hero{background:linear-gradient(135deg,#5b5bf0 0%,#8b5cf6 60%,#a855f7 100%);border-radius:22px;padding:20px;
+  color:#fff;margin-bottom:12px;box-shadow:0 10px 26px rgba(91,91,240,.3);position:relative;overflow:hidden}
+.hero:after{content:"";position:absolute;right:-30px;top:-40px;width:130px;height:130px;border-radius:50%;
+  background:rgba(255,255,255,.12)}
+.hero-label{font-size:12px;opacity:.82;letter-spacing:.5px}
+.hero-amount{font-size:31px;font-weight:750;margin:5px 0 12px;letter-spacing:-.5px}
+.hero-sub{display:flex;align-items:center;gap:10px;font-size:12.5px;opacity:.92}
+.hero-pill{background:rgba(255,255,255,.2);padding:5px 11px;border-radius:20px;font-size:11.5px;font-weight:600}
+.dot{width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,.6)}
+.row{display:flex;align-items:center}
+.between{justify-content:space-between}
+.gap{gap:10px}
+.grow{flex:1;min-width:0}
+.duty{display:flex;align-items:center;gap:11px;padding:9px 0;border-bottom:1px solid #f2f3f8}
+.duty:last-child{border-bottom:0;padding-bottom:2px}
+.duty-ico{width:36px;height:36px;border-radius:12px;background:#f2f3fb;display:flex;align-items:center;
+  justify-content:center;font-size:17px;flex:none}
+.duty-name{font-size:14px;font-weight:600}
+.duty-who{font-size:11.5px;color:#9aa0b5;margin-top:2px}
+.duty.done .duty-name{text-decoration:line-through;color:#b6bacb}
+.duty.done .duty-ico{opacity:.45}
+.chk{width:28px;height:28px;border-radius:50%;border:2px solid #dcdeea;background:#fff;color:#fff;font-size:14px;
+  cursor:pointer;flex:none;display:flex;align-items:center;justify-content:center;transition:.18s;padding:0}
+.chk.on{background:#10b981;border-color:#10b981}
+.alert{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#fff8f0;border-radius:12px;
+  margin-bottom:8px;font-size:13px;cursor:pointer;border:1px solid #ffe9d4}
+.alert:last-child{margin-bottom:0}
+.alert.warn{background:#fff1f2;border-color:#ffe0e3}
+.alert-ico{font-size:15px}
+.alert .go{margin-left:auto;color:#c4c8d8;font-size:15px}
+.empty{text-align:center;color:#a9adbf;font-size:13px;padding:18px 0}
+.avatar{width:34px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:13px;font-weight:600;flex:none;margin-right:11px}
+.item{display:flex;align-items:center;padding:10px 0;border-bottom:1px solid #f4f5fa}
+.item:last-child{border-bottom:0;padding-bottom:0}
+.item:first-child{padding-top:0}
+.item-title{font-size:13.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.item-sub{font-size:11.5px;color:#9aa0b5;margin-top:3px}
+.item-amt{font-size:14px;font-weight:650;flex:none;margin-left:8px}
+.total{font-size:27px;font-weight:750;letter-spacing:-.5px;margin-bottom:14px}
+.bal-row{display:flex;align-items:center;padding:9px 0;border-bottom:1px solid #f4f5fa}
+.bal-row:last-child{border-bottom:0;padding-bottom:0}
+.bal-amt{font-size:13px;font-weight:650;flex:none}
+.pos{color:#10b981}.neg{color:#ef4444}.zero{color:#9aa0b5;font-weight:500}
+.settle-row{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid #f4f5fa;font-size:13.5px}
+.settle-row:last-of-type{border-bottom:0}
+.settle-row .who{font-weight:600}
+.settle-row .arrow{color:#c4c8d8}
+.settle-row .amt{font-weight:700;color:#4f46e5}
+.hint{font-size:11px;color:#a9adbf;margin-top:10px;text-align:center}
+.week{display:grid;grid-template-columns:62px repeat(7,1fr);gap:5px;align-items:center}
+.week .h{text-align:center;font-size:11px;color:#9aa0b5;font-weight:600;padding-bottom:3px}
+.week .h.today{color:#4f46e5}
+.week .task-name{font-size:11px;color:#4b5069;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cell{display:flex;justify-content:center}
+.pill{width:23px;height:23px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:650}
+.cell.today .pill{box-shadow:0 0 0 2px #4f46e5}
+.supply{display:flex;align-items:center;padding:11px 0;border-bottom:1px solid #f4f5fa}
+.supply:last-child{border-bottom:0;padding-bottom:0}
+.supply-name{font-size:14px;font-weight:600}
+.supply-qty{font-size:11.5px;color:#9aa0b5;margin-top:3px}
+.supply-qty.low{color:#ef4444;font-weight:600}
+.stepper{display:flex;gap:7px;margin-left:auto}
+.step{width:30px;height:30px;border-radius:10px;border:1.5px solid #e6e7f0;background:#fff;font-size:16px;
+  color:#5b5bf0;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;line-height:1}
+.step:active{background:#f2f3fb}
+.rule{padding:12px 0;border-bottom:1px solid #f4f5fa}
+.rule:last-child{border-bottom:0;padding-bottom:0}
+.rule:first-child{padding-top:0}
+.rule-title{font-size:14px;font-weight:650;margin-bottom:5px}
+.rule-body{font-size:12.5px;color:#6b7188;line-height:1.65}
+.rule-foot{display:flex;align-items:center;gap:8px;margin-top:9px}
+.vote-btn{border:1.5px solid #e6e7f0;background:#fff;border-radius:20px;padding:4px 11px;font-size:11.5px;
+  color:#7b8095;cursor:pointer;font-family:inherit;font-weight:600;transition:.15s}
+.vote-btn.on{background:#eef0ff;border-color:#c7caff;color:#4f46e5}
+.vote-count{font-size:11px;color:#a9adbf}
+.tabbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;
+  background:rgba(255,255,255,.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-top:1px solid #ecedf5;display:flex;padding:7px 0 calc(7px + env(safe-area-inset-bottom));z-index:50}
+.tab{flex:1;background:none;border:0;font-size:10px;color:#9aa0b5;display:flex;flex-direction:column;
+  align-items:center;gap:3px;padding:4px 0;cursor:pointer;font-family:inherit;transition:.15s}
+.tab span{font-size:19px;line-height:1;filter:grayscale(1);opacity:.5;transition:.15s}
+.tab.active{color:#4f46e5;font-weight:700}
+.tab.active span{filter:none;opacity:1;transform:translateY(-1px)}
+.modal{position:fixed;inset:0;background:rgba(20,22,40,.45);display:none;align-items:flex-end;
+  justify-content:center;z-index:100;backdrop-filter:blur(3px)}
+.modal.show{display:flex}
+.sheet{background:#fff;width:100%;max-width:480px;border-radius:24px 24px 0 0;padding:22px 20px calc(22px + env(safe-area-inset-bottom));
+  max-height:88vh;overflow:auto;animation:up .24s cubic-bezier(.2,.9,.3,1)}
+@keyframes up{from{transform:translateY(50px);opacity:.5}to{transform:none;opacity:1}}
+.sheet-title{font-size:16px;font-weight:700;margin-bottom:18px}
+.field{margin-bottom:13px}
+.field label{display:block;font-size:12px;color:#7b8095;margin-bottom:7px;font-weight:600}
+input,select,textarea{width:100%;border:1.5px solid #e8e9f2;background:#f8f9fc;border-radius:13px;
+  padding:12px 13px;font-size:15px;font-family:inherit;color:#1f2333;outline:none;transition:.15s}
+input:focus,select:focus,textarea:focus{border-color:#a5a8f0;background:#fff}
+textarea{resize:vertical;min-height:76px;line-height:1.6}
+.chkrow{display:flex;flex-wrap:wrap;gap:8px}
+.chkline{display:flex;align-items:center;gap:6px;background:#f8f9fc;border:1.5px solid #e8e9f2;border-radius:11px;
+  padding:8px 12px;font-size:13px;cursor:pointer}
+.chkline input{width:auto;padding:0;margin:0;accent-color:#4f46e5}
+.btn{border:0;border-radius:14px;padding:14px;font-size:15px;font-weight:650;font-family:inherit;
+  cursor:pointer;width:100%;transition:.15s}
+.btn:active{transform:scale(.985)}
+.btn-primary{background:#4f46e5;color:#fff;box-shadow:0 5px 16px rgba(79,70,229,.3)}
+.btn-ghost{background:#f1f2f8;color:#5a5f77}
+.toast{position:fixed;bottom:100px;left:50%;transform:translate(-50%,14px);background:rgba(30,32,50,.92);
+  color:#fff;padding:11px 20px;border-radius:30px;font-size:13px;opacity:0;pointer-events:none;
+  transition:.25s;z-index:200;white-space:nowrap}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div>
+      <div class="brand">合租生活管家</div>
+      <div class="brand-sub" id="house-sub">阳光里 3 栋 602</div>
+    </div>
+    <div class="avatar-me">我</div>
+  </header>
+  <main id="view" class="view"></main>
+  <nav class="tabbar" id="tabbar"></nav>
+</div>
+<div class="modal" id="modal"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ==================== 工具函数 ==================== */
+const $ = s => document.querySelector(s);
+const uid = p => p + Math.random().toString(36).slice(2, 8);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad = n => String(n).padStart(2, '0');
+const fmtDate = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+const todayStr = () => fmtDate(new Date());
+function money(n){
+  const v = Math.round(Math.abs(n) * 100) / 100;
+  return '¥' + v.toLocaleString('zh-CN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+}
+function dayIndex(dstr){ return Math.floor(new Date(dstr + 'T00:00:00').getTime() / 86400000); }
+function toast(msg){
+  const el = $('#toast'); el.textContent = msg; el.classList.add('show');
+  clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('show'), 1600);
+}
+
+/* ==================== 数据层 ==================== */
+const STORE_KEY = 'roommate-hub-v1';
+let S = load();
+
+function seed(){
+  const now = new Date(), y = now.getFullYear(), m = now.getMonth();
+  const ds = d => fmtDate(new Date(y, m, d));
+  const all = ['r1','r2','r3'];
+  return {
+    roommates: [
+      {id:'r1', name:'我',   color:'#4f46e5'},
+      {id:'r2', name:'小美', color:'#ec4899'},
+      {id:'r3', name:'阿强', color:'#f59e0b'},
+    ],
+    expenses: [
+      {id:uid('e'), title:'房租',       amount:4500,  cat:'房租', payer:'r1', split:all.slice(), date:ds(1)},
+      {id:uid('e'), title:'水电燃气费', amount:326.5, cat:'水电', payer:'r2', split:all.slice(), date:ds(6)},
+      {id:uid('e'), title:'宽带月费',   amount:99,    cat:'网络', payer:'r3', split:all.slice(), date:ds(8)},
+      {id:uid('e'), title:'公共日用品采购', amount:168, cat:'日用', payer:'r1', split:all.slice(), date:ds(11)},
+      {id:uid('e'), title:'周末火锅食材', amount:243,  cat:'聚餐', payer:'r2', split:all.slice(), date:ds(14)},
+    ],
+    chores: {
+      tasks: [
+        {id:'c1', name:'倒垃圾',     icon:'🗑️'},
+        {id:'c2', name:'扫地拖地',   icon:'🧹'},
+        {id:'c3', name:'厨房台面',   icon:'🍳'},
+        {id:'c4', name:'卫生间清洁', icon:'🚿'},
+      ],
+      logs: {}
+    },
+    supplies: [
+      {id:'s1', name:'卷纸',   qty:2,   unit:'卷', min:4},
+      {id:'s2', name:'洗洁精', qty:1,   unit:'瓶', min:1},
+      {id:'s3', name:'垃圾袋', qty:18,  unit:'只', min:10},
+      {id:'s4', name:'洗衣液', qty:0.3, unit:'瓶', min:0.5},
+    ],
+    rules: [
+      {id:'p1', title:'作息与噪音', content:'23:30 后请戴耳机，公共区域通话尽量压低音量，避免影响他人休息。', votes:['r1','r2']},
+      {id:'p2', title:'访客与留宿', content:'朋友来访请提前 1 天在群里说明；留宿超过 2 晚需全体室友同意。', votes:['r2','r3']},
+      {id:'p3', title:'公共物品',   content:'公共日用品由当月值日生统一采购，费用记入账本并全员均摊。', votes:['r1','r2','r3']},
+      {id:'p4', title:'厨房清洁',   content:'做完饭随手擦灶台；垃圾满 2/3 即倒，谁最后离开厨房谁负责。', votes:['r1']},
+    ],
+  };
+}
+function load(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(raw){ const d = JSON.parse(raw); if(d && d.roommates) return d; }
+  }catch(e){}
+  return seed();
+}
+function save(){
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(S)); }catch(e){}
+}
+const rm = id => S.roommates.find(r => r.id === id) || {name:'?', color:'#999'};
+
+/* ==================== 业务计算 ==================== */
+function balances(){
+  const map = {};
+  S.roommates.forEach(r => map[r.id] = 0);
+  S.expenses.forEach(e => {
+    const n = e.split.length || 1;
+    const share = e.amount / n;
+    e.split.forEach(id => { map[id] = (map[id] || 0) - share; });
+    map[e.payer] = (map[e.payer] || 0) + e.amount;
+  });
+  return map;
+}
+function settle(){
+  const b = balances();
+  const debtors = Object.entries(b).filter(([, v]) => v < -0.005)
+    .map(([id, v]) => ({id, amt:-v})).sort((a, c) => c.amt - a.amt);
+  const creditors = Object.entries(b).filter(([, v]) => v > 0.005)
+    .map(([id, v]) => ({id, amt:v})).sort((a, c) => c.amt - a.amt);
+  const out = []; let i = 0, j = 0;
+  let guard = 0;
+  while(i < debtors.length && j < creditors.length && guard++ < 50){
+    const amt = Math.min(debtors[i].amt, creditors[j].amt);
+    out.push({from:debtors[i].id, to:creditors[j].id, amt});
+    debtors[i].amt -= amt; creditors[j].amt -= amt;
+    if(debtors[i].amt < 0.005) i++;
+    if(creditors[j].amt < 0.005) j++;
+  }
+  return out;
+}
+function dutyFor(taskIdx, dstr){
+  const n = S.roommates.length;
+  if(!n) return {name:'-', color:'#ccc'};
+  const i = ((dayIndex(dstr) + taskIdx) % n + n) % n;
+  return S.roommates[i];
+}
+function todayDuties(dstr = todayStr()){
+  const log = (S.chores.logs[dstr]) || {};
+  return S.chores.tasks.map((t, i) => ({
+    task: t, who: dutyFor(i, dstr), done: !!log[t.id]
+  }));
+}
+function weekDates(){
+  const now = new Date();
+  const dow = (now.getDay() + 6) % 7;
+  const mon = new Date(now); mon.setDate(now.getDate() - dow);
+  return Array.from({length:7}, (_, i) => { const d = new Date(mon); d.setDate(mon.getDate() + i); return d; });
+}
+
+/* ==================== 页面渲染 ==================== */
+const TABS = [
+  {id:'home',   icon:'🏠', label:'首页'},
+  {id:'money',  icon:'💰', label:'账本'},
+  {id:'chore',  icon:'🧹', label:'值日'},
+  {id:'supply', icon:'🧻', label:'物品'},
+  {id:'rule',   icon:'📜', label:'公约'},
+];
+let tab = 'home';
+
+function render(){
+  const fns = {home: viewHome, money: viewMoney, chore: viewChore, supply: viewSupply, rule: viewRule};
+  $('#view').innerHTML = fns[tab]();
+  document.querySelectorAll('.tab').forEach(el => el.classList.toggle('active', el.dataset.tab === tab));
+  $('#house-sub').textContent = `阳光里 3 栋 602 · ${S.roommates.length} 位室友`;
+  window.scrollTo({top:0, behavior:'instant' in window ? 'instant' : 'auto'});
+  renderTabbar();
+}
+function renderTabbar(){
+  if($('#tabbar').childElementCount) return;
+  $('#tabbar').innerHTML = TABS.map(t =>
+    `<button class="tab" data-tab="${t.id}" onclick="go('${t.id}')"><span>${t.icon}</span>${t.label}</button>`
+  ).join('');
+}
+function go(t){ tab = t; render(); }
+
+/* ---------- 首页 ---------- */
+function viewHome(){
+  const bal = balances();
+  const total = S.expenses.reduce((s, e) => s + e.amount, 0);
+  const me = 'r1';
+  const myBal = bal[me] || 0;
+  const duties = todayDuties();
+  const doneCount = duties.filter(d => d.done).length;
+  const now = new Date();
+  const dateLabel = `${now.getMonth()+1}月${now.getDate()}日 周${'日一二三四五六'[now.getDay()]}`;
+
+  // 待办提醒
+  const alerts = [];
+  S.supplies.forEach(s => {
+    if(s.qty <= s.min) alerts.push({ico:'🧻', text:`${s.name}库存不足，仅剩 ${s.qty}${s.unit}`, tab:'supply', warn:true});
+  });
+  settle().forEach(x => {
+    if(x.from === me) alerts.push({ico:'💸', text:`待转给 ${rm(x.to).name} ${money(x.amt)}`, tab:'money', warn:false});
+  });
+  if(doneCount < duties.length){
+    const rest = duties.filter(d => !d.done).map(d => d.task.name).join('、');
+    alerts.push({ico:'🧹', text:`今日还有值日未完成：${rest}`, tab:'chore', warn:false});
+  }
+
+  return `
+  <div class="hero">
+    <div class="row between">
+      <div>
+        <div class="hero-label">本月公共支出</div>
+        <div class="hero-amount">${money(total)}</div>
+      </div>
+      <div class="hero-pill">${dateLabel}</div>
+    </div>
+    <div class="hero-sub">
+      <span>${myBal >= 0.005 ? '我应收 ' + money(myBal) : myBal <= -0.005 ? '我应付 ' + money(-myBal) : '我的账目已结清'}</span>
+      <span class="dot"></span>
+      <span>${S.expenses.length} 笔公共账单</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span>🧹 今日值日</span><span class="muted">${doneCount}/${duties.length} 已完成</span></div>
+    ${duties.map(d => `
+      <div class="duty ${d.done ? 'done' : ''}">
+        <div class="duty-ico">${d.task.icon}</div>
+        <div class="grow">
+          <div class="duty-name">${d.task.name}</div>
+          <div class="duty-who">${esc(d.who.name)} 负责</div>
+        </div>
+        <button class="chk ${d.done ? 'on' : ''}" onclick="toggleDuty('${d.task.id}')">${d.done ? '✓' : ''}</button>
+      </div>`).join('')}
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span>🔔 待办提醒</span><span class="muted">${alerts.length} 条</span></div>
+    ${alerts.length ? alerts.map(a => `
+      <div class="alert ${a.warn ? 'warn' : ''}" onclick="go('${a.tab}')">
+        <span class="alert-ico">${a.ico}</span>
+        <span>${esc(a.text)}</span>
+        <span class="go">›</span>
+      </div>`).join('') : '<div class="empty">暂无待办，一切顺利 ✨</div>'}
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span>📊 室友账目速览</span><span class="link" onclick="go('money')">查看明细</span></div>
+    ${S.roommates.map(r => {
+      const v = bal[r.id] || 0;
+      const cls = v > 0.005 ? 'pos' : v < -0.005 ? 'neg' : 'zero';
+      const txt = v > 0.005 ? `应收 ${money(v)}` : v < -0.005 ? `应付 ${money(-v)}` : '已结清';
+      return `<div class="bal-row">
+        <div class="avatar" style="background:${r.color}">${esc(r.name[0])}</div>
+        <div class="grow"><div class="item-title">${esc(r.name)}</div></div>
+        <div class="bal-amt ${cls}">${txt}</div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+function toggleDuty(taskId){
+  const t = todayStr();
+  S.chores.logs[t] = S.chores.logs[t] || {};
+  if(S.chores.logs[t][taskId]) delete S.chores.logs[t][taskId];
+  else S.chores.logs[t][taskId] = true;
+  save(); render();
+}
+
+/* ---------- 账本 ---------- */
+function viewMoney(){
+  const bal = balances();
+  const total = S.expenses.reduce((s, e) => s + e.amount, 0);
+  const list = settle();
+  const sorted = S.expenses.slice().sort((a, b) => b.date.localeCompare(a.date));
+
+  return `
+  <div class="card">
+    <div class="card-title"><span>💰 公共账单</span><span class="muted">${S.expenses.length} 笔</span></div>
+    <div class="total">${money(total)}</div>
+    ${S.roommates.map(r => {
+      const v = bal[r.id] || 0;
+      const cls = v > 0.005 ? 'pos' : v < -0.005 ? 'neg' : 'zero';
+      const txt = v > 0.005 ? `应收 ${money(v)}` : v < -0.005 ? `应付 ${money(-v)}` : '已结清';
+      return `<div class="bal-row">
+        <div class="avatar" style="background:${r.color}">${esc(r.name[0])}</div>
+        <div class="grow">
+          <div class="item-title">${esc(r.name)}</div>
+          <div class="item-sub">${v > 0.005 ? '别人欠他' : v < -0.005 ? '他欠别人' : '无需结算'}</div>
+        </div>
+        <div class="bal-amt ${cls}">${txt}</div>
+      </div>`;
+    }).join('')}
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span>🤝 最优结算方案</span></div>
+    ${list.length ? list.map(x => `
+      <div class="settle-row">
+        <span class="who">${esc(rm(x.from).name)}</span>
+        <span class="arrow">→</span>
+        <span class="who">${esc(rm(x.to).name)}</span>
+        <span class="grow"></span>
+        <span class="amt">${money(x.amt)}</span>
+      </div>`).join('') : '<div class="empty">账目已平，无需转账 🎉</div>'}
+    <div class="hint">按最少转账笔数自动计算</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span>📋 账单明细</span><button class="link" onclick="openExpense()">+ 记一笔</button></div>
+    ${sorted.length ? sorted.map(e => `
+      <div class="item">
+        <div class="avatar" style="background:${rm(e.payer).color}">${esc(rm(e.payer).name[0])}</div>
+        <div class="grow">
+          <div class="item-title">${esc(e.title)}</div>
+          <div class="item-sub">${e.date.slice(5)} · ${esc(rm(e.payer).name)}垫付 · ${e.split.length}人均摊</div>
+        </div>
+        <div class="item-amt">${money(e.amount)}</div>
+        <button class="link" style="color:#d0d3e0;font-size:16px;padding:0 0 0 8px" onclick="delExpense('${e.id}')">×</button>
+      </div>`).join('') : '<div class="empty">还没有账单，点右上角记一笔</div>'}
+  </div>`;
+}
+
+function delExpense(id){
+  S.expenses = S.expenses.filter(e => e.id !== id);
+  save(); render(); toast('已删除该笔账单');
+}
+
+function openExpense(){
+  const opts = S.roommates.map(r => `<option value="${r.id}">${esc(r.name)}</option>`).join('');
+  const checks = S.roommates.map(r =>
+    `<label class="chkline"><input type="checkbox" value="${r.id}" checked><span>${esc(r.name)}</span></label>`).join('');
+  openModal(`
+    <div class="sheet">
+      <div class="sheet-title">记一笔公共支出</div>
+      <div class="field"><label>项目名称</label><input id="ex-title" placeholder="例如：水电燃气费" /></div>
+      <div class="field"><label>金额（元）</label><input id="ex-amount" type="number" inputmode="decimal" placeholder="0.00" /></div>
+      <div class="field"><label>付款人（垫付人）</label><select id="ex-payer">${opts}</select></div>
+      <div class="field"><label>参与分摊的室友</label><div class="chkrow" id="ex-split">${checks}</div></div>
+      <div class="row gap" style="margin-top:6px">
+        <button class="btn btn-ghost" onclick="closeModal()">取消</button>
+        <button class="btn btn-primary" onclick="saveExpense()">保存</button>
+      </div>
+    </div>`);
+  setTimeout(() => { const el = $('#ex-title'); if(el) el.focus(); }, 60);
+}
+
+function saveExpense(){
+  const title = ($('#ex-title').value || '').trim();
+  const amount = parseFloat($('#ex-amount').value);
+  const payer = $('#ex-payer').value;
+  const split = [...document.querySelectorAll('#ex-split input:checked')].map(i => i.value);
+  if(!title) return toast('请填写项目名称');
+  if(!amount || amount <= 0) return toast('请填写正确的金额');
+  if(!split.length) return toast('至少选择一位分摊人');
+  S.expenses.push({id:uid('e'), title, amount, payer, split, cat:'其他', date:todayStr()});
+  save(); closeModal(); render(); toast('已记录，自动完成分摊');
+}
+
+/* ---------- 值日 ---------- */
+function viewChore(){
+  const duties = todayDuties();
+  const doneCount = duties.filter(d => d.done).length;
+  const week = weekDates();
+  const wd = ['一','二','三','四','五','六','日'];
+  const today = todayStr();
+
+  let grid = `<div class="week"><div class="h"></div>` +
+    week.map((d, i) => `<div class="h ${fmtDate(d) === today ? 'today' : ''}">${wd[i]}</div>`).join('') + `</div>`;
+
+  S.chores.tasks.forEach((t, ti) => {
+    grid += `<div class="week" style="margin-top:5px"><div class="task-name">${t.name}</div>` +
+      week.map(d => {
+        const ds = fmtDate(d);
+        const who = dutyFor(ti, ds);
+        return `<div class="cell ${ds === today ? 'today' : ''}">
+          <div class="pill" style="background:${who.color}22;color:${who.color}" title="${esc(who.name)}">${esc(who.name[0])}</div>
+        </div>`;
+      }).join('') + `</div>`;
+  });
+
+  return `
+  <div class="card">
+    <div class="card-title"><span>🧹 今日值日</span><span class="muted">${doneCount}/${duties.length} 已完成</span></div>
+    ${duties.map(d => `
+      <div class="duty ${d.done ? 'done' : ''}">
+        <div class="duty-ico">${d.task.icon}</div>
+        <div class="grow">
+          <div class="duty-name">${d.task.name}</div>
+          <div class="duty-who">${esc(d.who.name)} 负责</div>
+        </div>
+        <button class="chk ${d.done ? 'on' : ''}" onclick="toggleDuty('${d.task.id}')">${d.done ? '✓' : ''}</button>
+      </div>`).join('')}
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span>📅 本周轮值表</span><span class="muted">每日自动轮换</span></div>
+    ${grid}
+    <div class="hint" style="margin-top:14px">每周自动轮换，无需手动排班；点击首页圆圈即可打卡</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span>✅ 本周完成情况</span></div>
+    ${S.roommates.map(r => {
+      let done = 0, totalTask = 0;
+      week.forEach(d => {
+        const ds = fmtDate(d);
+        S.chores.tasks.forEach((t, ti) => {
+          if(dutyFor(ti, ds).id === r.id){
+            totalTask++;
+            if(S.chores.logs[ds] && S.chores.logs[ds][t.id]) done++;
+          }
+        });
+      });
+      const pct = totalTask ? Math.round(done / totalTask * 100) : 0;
+      return `<div class="bal-row">
+        <div class="avatar" style="background:${r.color}">${esc(r.name[0])}</div>
+        <div class="grow">
+          <div class="item-title">${esc(r.name)}</div>
+          <div class="item-sub">完成 ${done} / ${totalTask} 项</div>
+        </div>
+        <div class="bal-amt" style="color:${pct >= 80 ? '#10b981' : pct >= 50 ? '#f59e0b' : '#ef4444'}">${pct}%</div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+/* ---------- 物品 ---------- */
+function viewSupply(){
+  const low = S.supplies.filter(s => s.qty <= s.min);
+  return `
+  ${low.length ? `<div class="card" style="background:linear-gradient(135deg,#fff5f5,#fff0f0);border:1px solid #ffe2e2">
+    <div class="card-title"><span>⚠️ 库存告急</span><span class="muted">${low.length} 项</span></div>
+    ${low.map(s => `<div class="alert warn" style="cursor:default">
+      <span class="alert-ico">🧻</span>
+      <span>${esc(s.name)} 仅剩 ${s.qty}${s.unit}（预警线 ${s.min}${s.unit}）</span>
+    </div>`).join('')}
+  </div>` : ''}
+
+  <div class="card">
+    <div class="card-title"><span>🧻 公共物品登记</span><button class="link" onclick="openSupply()">+ 新增</button></div>
+    ${S.supplies.length ? S.supplies.map(s => {
+      const isLow = s.qty <= s.min;
+      return `<div class="supply">
+        <div class="grow">
+          <div class="supply-name">${esc(s.name)}</div>
+          <div class="supply-qty ${isLow ? 'low' : ''}">
+            ${isLow ? '⚠️ ' : ''}库存 ${s.qty}${s.unit} · 预警 ${s.min}${s.unit}
+          </div>
+        </div>
+        <div class="stepper">
+          <button class="step" onclick="chgQty('${s.id}',-1)">−</button>
+          <button class="step" onclick="chgQty('${s.id}',1)">+</button>
+        </div>
+      </div>`;
+    }).join('') : '<div class="empty">还没有登记公共物品</div>'}
+    <div class="hint" style="margin-top:14px">消耗物品点 −，补货点 +，低于预警线会自动提醒</div>
+  </div>`;
+}
+
+function chgQty(id, delta){
+  const s = S.supplies.find(x => x.id === id);
+  if(!s) return;
+  const step = s.unit === '瓶' && s.qty < 1 ? 0.5 : 1;
+  s.qty = Math.max(0, Math.round((s.qty + delta * step) * 100) / 100);
+  save(); render();
+}
+
+function openSupply(){
+  openModal(`
+    <div class="sheet">
+      <div class="sheet-title">登记公共物品</div>
+      <div class="field"><label>物品名称</label><input id="sp-name" placeholder="例如：卷纸" /></div>
+      <div class="row gap">
+        <div class="field grow"><label>当前数量</label><input id="sp-qty" type="number" inputmode="decimal" placeholder="0" /></div>
+        <div class="field grow"><label>单位</label><input id="sp-unit" placeholder="卷 / 瓶 / 只" /></div>
+      </div>
+      <div class="field"><label>预警线（低于该数量自动提醒）</label><input id="sp-min" type="number" inputmode="decimal" placeholder="0" /></div>
+      <div class="row gap" style="margin-top:6px">
+        <button class="btn btn-ghost" onclick="closeModal()">取消</button>
+        <button class="btn btn-primary" onclick="saveSupply()">保存</button>
+      </div>
+    </div>`);
+  setTimeout(() => { const el = $('#sp-name'); if(el) el.focus(); }, 60);
+}
+
+function saveSupply(){
+  const name = ($('#sp-name').value || '').trim();
+  const qty = parseFloat($('#sp-qty').value) || 0;
+  const unit = ($('#sp-unit').value || '').trim() || '个';
+  const min = parseFloat($('#sp-min').value) || 0;
+  if(!name) return toast('请填写物品名称');
+  S.supplies.push({id:uid('s'), name, qty, unit, min});
+  save(); closeModal(); render(); toast('已加入公共物品清单');
+}
+
+/* ---------- 公约 ---------- */
+function viewRule(){
+  const me = 'r1';
+  return `
+  <div class="card" style="background:linear-gradient(135deg,#f5f3ff,#eef2ff);border:1px solid #e4e4ff">
+    <div class="card-title" style="margin-bottom:6px"><span>📜 室友公约</span></div>
+    <div style="font-size:12.5px;color:#6b7188;line-height:1.7">
+      共同约定，共同遵守。每条公约需 <b style="color:#4f46e5">全员赞成</b> 方可生效，有异议可随时提出修改。
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span>公约列表</span><button class="link" onclick="openRule()">+ 新增</button></div>
+    ${S.rules.length ? S.rules.map(p => {
+      const voted = p.votes.includes(me);
+      const passed = p.votes.length >= S.roommates.length;
+      return `<div class="rule">
+        <div class="rule-title">
+          ${esc(p.title)}
+          ${passed ? '<span style="font-size:10.5px;color:#10b981;background:#e8f9f1;padding:2px 7px;border-radius:8px;margin-left:6px;font-weight:600">已生效</span>'
+                   : '<span style="font-size:10.5px;color:#f59e0b;background:#fff6e6;padding:2px 7px;border-radius:8px;margin-left:6px;font-weight:600">待表决</span>'}
+        </div>
+        <div class="rule-body">${esc(p.content)}</div>
+        <div class="rule-foot">
+          <button class="vote-btn ${voted ? 'on' : ''}" onclick="voteRule('${p.id}')">${voted ? '✓ 已赞成' : '赞成'}</button>
+          <span class="vote-count">${p.votes.length}/${S.roommates.length} 人赞成</span>
+          <span class="grow"></span>
+          ${S.roommates.map(r => `<span style="width:7px;height:7px;border-radius:50%;display:inline-block;
+            background:${p.votes.includes(r.id) ? r.color : '#e3e5ef'}" title="${esc(r.name)}"></span>`).join('')}
+        </div>
+      </div>`;
+    }).join('') : '<div class="empty">还没有公约，点右上角新增一条</div>'}
+  </div>`;
+}
+
+function voteRule(id){
+  const p = S.rules.find(x => x.id === id);
+  if(!p) return;
+  const me = 'r1';
+  if(p.votes.includes(me)) p.votes = p.votes.filter(x => x !== me);
+  else p.votes.push(me);
+  save(); render();
+}
+
+function openRule(){
+  openModal(`
+    <div class="sheet">
+      <div class="sheet-title">新增室友公约</div>
+      <div class="field"><label>公约标题</label><input id="rl-title" placeholder="例如：宠物饲养" /></div>
+      <div class="field"><label>具体内容</label><textarea id="rl-content" placeholder="写清楚约定细节，方便大家遵守～"></textarea></div>
+      <div class="row gap" style="margin-top:6px">
+        <button class="btn btn-ghost" onclick="closeModal()">取消</button>
+        <button class="btn btn-primary" onclick="saveRule()">提交表决</button>
+      </div>
+    </div>`);
+  setTimeout(() => { const el = $('#rl-title'); if(el) el.focus(); }, 60);
+}
+
+function saveRule(){
+  const title = ($('#rl-title').value || '').trim();
+  const content = ($('#rl-content').value || '').trim();
+  if(!title) return toast('请填写公约标题');
+  if(!content) return toast('请填写公约内容');
+  S.rules.push({id:uid('p'), title, content, votes:['r1']});
+  save(); closeModal(); render(); toast('已提交，等待室友赞成');
+}
+
+/* ==================== 弹窗 ==================== */
+function openModal(html){
+  $('#modal').innerHTML = html;
+  $('#modal').classList.add('show');
+}
+function closeModal(){ $('#modal').classList.remove('show'); }
+$('#modal').addEventListener('click', e => { if(e.target.id === 'modal') closeModal(); });
+
+/* ==================== 启动 ==================== */
+renderTabbar();
+render();
+</script>
+</body>
+</html>
